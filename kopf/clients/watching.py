@@ -162,7 +162,9 @@ async def continuous_watch(
             resource_version = body.get('metadata', {}).get('resourceVersion', resource_version)
 
             # Yield normal events to the consumer. Errors are already filtered out.
+            logger.debug('corka149: Will yield event')
             yield cast(bodies.RawEvent, raw_input)
+    logger.info('corka149: Finished continuous_watch')
 
 
 @auth.reauthenticated_stream
@@ -217,7 +219,8 @@ async def watch_objs(
                 raw_input = cast(bodies.RawInput, json.loads(line.decode("utf-8")))
                 yield raw_input
     except (aiohttp.ClientConnectionError, aiohttp.ClientPayloadError):
-        pass
+        msg = 'corka149: aiohttp.ClientConnectionError or aiohttp.ClientPayloadError occurred'
+        logger.error(msg)
     finally:
         freeze_waiter.remove_done_callback(response_close_callback)
 
